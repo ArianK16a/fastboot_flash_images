@@ -6,6 +6,28 @@ DEVICE="renoir"
 # List of partitions which can be flashed. Only images existent in out will be flashed.
 SUPPORTED_PARTITIONS="boot dtbo odm product system_ext system vbmeta vbmeta_system vendor_boot vendor"
 
+# Function to print with colors
+function colored_echo() {
+    IFS=" "
+    local color=$1;
+    shift
+    if ! [[ $color =~ '^[0-9]$' ]] ; then
+        case $(echo $color | tr '[:upper:]' '[:lower:]') in
+        black) color=0 ;;
+        red) color=1 ;;
+        green) color=2 ;;
+        yellow) color=3 ;;
+        blue) color=4 ;;
+        magenta) color=5 ;;
+        cyan) color=6 ;;
+        white|*) color=7 ;; # white or invalid color
+        esac
+    fi
+    tput setaf $color
+    printf '%s\n' "$*"
+    tput sgr0
+}
+
 # Strip not existent partitions
 for partition in ${SUPPORTED_PARTITIONS}; do
     if ssh -q ${REMOTE_HOST} [[ -f ${REMOTE_HOST_ANDROID_ROOT}/out/target/product/${DEVICE}/${partition}.img ]]; then
