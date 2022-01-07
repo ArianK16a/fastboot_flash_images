@@ -37,9 +37,15 @@ done
 
 get_images () {
     for partition in ${AVAILABLE_PARTITIONS}; do
-        echo "Downloading ${partition}"
-        rsync -v ${REMOTE_HOST}:${REMOTE_HOST_ANDROID_ROOT}/out/target/product/${DEVICE}/${partition}.img ./
-        echo "Downloaded ${partition}"
+        colored_echo magenta "[downloader] Downloading ${partition} image"
+        rsync -vq ${REMOTE_HOST}:${REMOTE_HOST_ANDROID_ROOT}/out/target/product/${DEVICE}/${partition}.img ./ | sed "s|.*|[downloader][rsync] &|"
+        if [[ $? = 0 ]]; then
+            colored_echo magenta "[downloader] Downloaded ${partition} image"
+        else
+            colored_echo red "[downloader] Failed to download ${partition} image"
+        fi
+        colored_echo green "[downloader] Finished downloading images"
+
     done
 }
 
@@ -52,8 +58,14 @@ flash_images () {
             echo "${partition} download is corrupt!"
             continue
         fi
-        echo "Flashing ${partition}"
-        fastboot flash ${partition} ${partition}.img
+        colored_echo yellow "[flasher] Flashing ${partition} image"
+        fastboot flash ${partition} ${partition}.img 2>&1 | sed "s|.*|[flasher][fastboot] &|"
+        if [[ $? = 0 ]]; then
+            colored_echo yellow "[flasher] Flashed ${partition} image"
+        else
+            colored_echo red "[flasher] Failed to flash ${partition} image"
+        fi
+        colored_echo green "[flasher] Finished flashing images"
     done
 }
 
