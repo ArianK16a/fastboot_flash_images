@@ -67,6 +67,9 @@ flash_image () {
         partition_with_slot="${partition}"
         if [[ ${device_is_ab} == "1" ]]; then
             partition_with_slot="${partition_with_slot}_${fastboot_current_slot}"
+            if [[ ${partition} = "boot" ]]; then
+                partition_with_slot="boot_ab"
+            fi
         fi
            
         # Flash the image using fastboot
