@@ -27,9 +27,6 @@ flash_images () {
     done
 }
 
-# Cleanup
-rm ./*.img
-
 get_images&
 flash_images&
 wait
