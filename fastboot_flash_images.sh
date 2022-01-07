@@ -3,10 +3,18 @@ REMOTE_HOST="arian@138.201.123.197"
 REMOTE_HOST_ANDROID_ROOT="/home/arian/lineage-18.1/"
 DEVICE="renoir"
 
-PARTITIONS="boot dtbo odm product system_ext system vbmeta vbmeta_system vendor_boot vendor"
+# List of partitions which can be flashed. Only images existent in out will be flashed.
+SUPPORTED_PARTITIONS="boot dtbo odm product system_ext system vbmeta vbmeta_system vendor_boot vendor"
+
+# Strip not existent partitions
+for partition in ${SUPPORTED_PARTITIONS}; do
+    if ssh -q ${REMOTE_HOST} [[ -f ${REMOTE_HOST_ANDROID_ROOT}/out/target/product/${DEVICE}/${partition}.img ]]; then
+        AVAILABLE_PARTITIONS="${AVAILABLE_PARTITIONS} ${partition}"
+    fi
+done
 
 get_images () {
-    for partition in ${PARTITIONS}; do
+    for partition in ${AVAILABLE_PARTITIONS}; do
         echo "Downloading ${partition}"
         rsync -v ${REMOTE_HOST}:${REMOTE_HOST_ANDROID_ROOT}/out/target/product/${DEVICE}/${partition}.img ./
         echo "Downloaded ${partition}"
@@ -14,7 +22,7 @@ get_images () {
 }
 
 flash_images () {
-    for partition in ${PARTITIONS}; do
+    for partition in ${AVAILABLE_PARTITIONS}; do
         until [[ -f ./${partition}.img ]]; do
             sleep 1
         done
