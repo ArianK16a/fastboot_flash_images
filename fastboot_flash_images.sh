@@ -71,7 +71,7 @@ flash_image () {
                 partition_with_slot="boot_ab"
             fi
         fi
-           
+
         # Flash the image using fastboot
         colored_echo yellow "[flasher] Flashing ${partition_with_slot} image"
         fastboot flash ${partition_with_slot} ${partition}.img 2>&1 | sed "s|.*|[flasher][fastboot] &|"
@@ -92,7 +92,7 @@ flash_images () {
     if [[ ${device_is_dynamic} = "1" ]]; then
         colored_echo yellow "[flasher] Dynamic device booting into userspace fastboot"
         fastboot reboot fastboot 2>&1 | sed "s|.*|[flasher][fastboot] &|"
-        
+
         # Check if booting to userspace fastboot suceeded
         fastboot_is_userspace=$(fastboot getvar is-userspace 2>&1 | awk 'NR==1{print $2}')
         fastboot_is_userspace=${fastboot_is_userspace//[^a-zA-Z0-9_]/}
